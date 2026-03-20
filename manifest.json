@@ -1,11 +1,10 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "modular-habit-tracker",
+	"name": "Modular Habit Tracker",
 	"version": "1.0.0",
-	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"minAppVersion": "1.4.0",
+	"description": "A highly customizable, modular habit tracker that logs data to daily notes.",
+	"author": "Adambench",
+	"authorUrl": "https://github.com/Adambench",
 	"isDesktopOnly": false
 }
