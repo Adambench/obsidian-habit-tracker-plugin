@@ -1,36 +1,78 @@
-import {App, PluginSettingTab, Setting} from "obsidian";
-import MyPlugin from "./main";
+import { App, PluginSettingTab, Setting } from 'obsidian';
+import ModularHabitTracker from './main';
+import { Habit } from './types';
 
-export interface MyPluginSettings {
-	mySetting: string;
-}
+export class TrackerSettingTab extends PluginSettingTab {
+    plugin: ModularHabitTracker;
 
-export const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
-}
+    constructor(app: App, plugin: ModularHabitTracker) {
+        super(app, plugin);
+        this.plugin = plugin;
+    }
 
-export class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+    display(): void {
+        const { containerEl } = this;
+        containerEl.empty();
 
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
+        containerEl.createEl('h2', { text: 'Modular Habit Tracker Settings' });
 
-	display(): void {
-		const {containerEl} = this;
+        new Setting(containerEl)
+            .setName('Daily Notes Folder')
+            .setDesc('Where are your daily notes stored?')
+            .addText(text => text
+                .setPlaceholder('Journal/Daily Notes')
+                .setValue(this.plugin.settings.dailyNotesFolder)
+                .onChange(async (value) => {
+                    this.plugin.settings.dailyNotesFolder = value;
+                    await this.plugin.saveSettings();
+                }));
 
-		containerEl.empty();
+        containerEl.createEl('h3', { text: 'Habits Management' });
+        
+        // Add New Habit Button
+        new Setting(containerEl)
+            .addButton(btn => btn
+                .setButtonText('+ Add New Habit')
+                .setCta()
+                .onClick(async () => {
+                    const newHabit: Habit = {
+                        id: `habit_${Date.now()}`,
+                        label: 'New Habit',
+                        category: this.plugin.settings.categories[0] ?? 'General',
+                        type: 'dua',
+                        description: '',
+                        frequency: 'daily',
+                        status: 'active'
+                    };
+                    this.plugin.settings.habits.push(newHabit);
+                    await this.plugin.saveSettings();
+                    this.display(); // Refresh settings UI
+                }));
 
-		new Setting(containerEl)
-			.setName('Settings #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
-	}
+        // List existing habits
+        this.plugin.settings.habits.forEach((habit, index) => {
+            const habitSetting = new Setting(containerEl)
+                .setName(habit.label)
+                .setDesc(`${habit.category} | Status: ${habit.status}`);
+
+            // Toggle Sleep Status
+            habitSetting.addButton(btn => btn
+                .setButtonText(habit.status === 'sleep' ? 'Wake Up' : 'Put to Sleep')
+                .onClick(async () => {
+                    habit.status = habit.status === 'sleep' ? 'active' : 'sleep';
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
+
+            // Delete Habit
+            habitSetting.addButton(btn => btn
+                .setButtonText('Delete')
+                .setWarning()
+                .onClick(async () => {
+                    this.plugin.settings.habits.splice(index, 1);
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
+        });
+    }
 }
