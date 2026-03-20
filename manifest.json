@@ -1,7 +1,7 @@
 {
-	"id": "modular-habit-tracker",
-	"name": "Modular Habit Tracker",
-	"version": "1.0.0",
+	"id": "habit-tracker-plugin",
+	"name": "Habit Tracker",
+	"version": "1.0.1",
 	"minAppVersion": "1.4.0",
 	"description": "A highly customizable, modular habit tracker that logs data to daily notes.",
 	"author": "Adambench",
